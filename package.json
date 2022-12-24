@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "eslint": "^8.30.0",
+    "fast-check": "^3.0.1",
+    "llvm-bindings": "^0.3.8",
+    "lodash": "^4.17.21",
+    "mocha": "^10.2.0",
+    "npm": "^8.15.1"
+  },
+  "name": "pyrite",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "export \"EM_NODE_JS=$NODE\" && unset NODE && mocha"
+  },
+  "author": "otesunki",
+  "license": "GPL-3.0-or-later",
+  "description": ""
+}
