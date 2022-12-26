@@ -1,6 +1,11 @@
-// TODO: in the words of andrewg1990: "it's too slow!"
+// ????-??-??T??:??:??Z TODO:
+// in the words of andrewg1990: "it's too slow!"
 
-/*import llvm from 'llvm-bindings';
+// 2022-12-24T16:34:18Z TODO:
+// times since the last TODO have jumped from 10s per test to 1000s per test.
+
+/*
+import llvm from 'llvm-bindings';
 import assert from 'assert';
 import fc from 'fast-check';
 import pyrite from '../pyrite.js';
@@ -142,4 +147,5 @@ describe('the compiler', () => {
       })
     );
   });
-});*/
+});
+*/
