@@ -2,10 +2,11 @@
   "dependencies": {
     "eslint": "^8.30.0",
     "fast-check": "^3.0.1",
+    "just-clone": "^6.2.0",
     "llvm-bindings": "^0.3.8",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "npm": "^8.15.1"
+    "npm": "^9.2.0"
   },
   "name": "pyrite",
   "version": "1.0.0",
