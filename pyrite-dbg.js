@@ -29,8 +29,8 @@ function llvm_to_js(bitcode, exported_functions, linked_files=[]) {
     execFile('emcc', [
       '--no-entry',
       '-o', `/tmp/${filename}.cjs`,
-      `-sEXPORTED_FUNCTIONS=${exported_functions.map(x => '_'+x).join(',')}`,
-      '-sEXPORTED_RUNTIME_METHODS=ccall,cwrap',
+      `-sEXPORTED_FUNCTIONS=[${exported_functions.map(x => `"_${x}"`).join(',')}]`,
+      '-sEXPORTED_RUNTIME_METHODS=["ccall","cwrap"]',
       '-sENVIRONMENT=""',
       `/tmp/${filename}.bc`,
       ...linked_files
