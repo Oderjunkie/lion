@@ -1,6 +1,6 @@
 import { AST } from './pyrite-parser.js';
 import { expand } from './pyrite-macro.js';
-// import { dbg } from './pyrite-dbg.js';
+import { dbg } from './pyrite-dbg.js';
 import {
   raise,
   relocate,
@@ -10,7 +10,8 @@ import {
   letin,
   NUMBER_REGEX,
   single_item_map,
-  merge_maps
+  merge_maps,
+  log
 } from './pyrite-common.js';
 
 /**
@@ -198,10 +199,15 @@ const evaluate_atom = (expr, env) =>
 //===[ evaluate_string ]===//
 const cant_evaluate = (expr, _env) => expr;
 //===[ evaluate_quoted ]===//
-const evaluate_quoted = (expr, _env) => expr.has;
+const evaluate_quoted = (expr, env) =>
+  expr.has.kind == AST.LIST ?
+    map(expr.has, has => has.map(has => evaluate(has, env))) :
+
+  expr.has;
 
 //===[ evaluate ]===//
 const evaluation_fns = new Map();
+evaluation_fns.set(AST.NULL, cant_evaluate);
 evaluation_fns.set(AST.RAW, cant_evaluate);
 evaluation_fns.set(AST.RAW2, cant_evaluate);
 evaluation_fns.set(AST.ATOM, evaluate_atom);
@@ -216,7 +222,7 @@ const evaluation_fn = expr =>
   )));
 
 const evaluate = (expr, env) =>
-  evaluation_fn(expr)(expr, env ?? new Map())
+  evaluation_fn(expr)(expr, env ?? new Map());
 
 export {
   exec,
