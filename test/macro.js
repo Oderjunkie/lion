@@ -4,8 +4,10 @@ import pyrite from '../pyrite.js';
 import {
   ATOM_REGEX,
   atom_arbitrary,
-  non_numeral_atom_arbitrary
+  non_numeral_atom_arbitrary,
+  pyrite_ast_arbitrary
 } from './common.js';
+import clone from 'just-clone';
 
 describe('the macro expander', () => {
   describe('let', () => {
@@ -157,5 +159,49 @@ describe('the macro expander', () => {
         }
       )
     );
-  })
+  });
+  it('supports user-defined macros', () => {
+    const code = `
+((macro (env args)
+  '((first args) (first args)))
+  1)
+`;
+    const tokens = pyrite.lex(code);
+    const ast = pyrite.parse(tokens, code);
+    const expanded = pyrite.expand(ast);
+    assert.strictEqual(expanded.ast[0].kind, pyrite.AST.LIST);
+    assert.strictEqual(expanded.ast[0].has.length, 2);
+    assert.strictEqual(expanded.ast[0].has[0].kind, pyrite.AST.ATOM);
+    assert.strictEqual(expanded.ast[0].has[0].has, '1');
+    assert.strictEqual(expanded.ast[0].has[1].kind, pyrite.AST.ATOM);
+    assert.strictEqual(expanded.ast[0].has[1].has, '1');
+  });
+  /*
+  2022-12-26T18:27:18Z TODO: this crashes. the irony!
+  it('never crashes', () => {
+    fc.assert(
+      fc.property(
+        pyrite_ast_arbitrary,
+        ast => {
+          pyrite.expand([ast]);
+        }
+      )
+    );
+  });
+  it('is pure', () => {
+    fc.assert(
+      fc.property(
+        pyrite_ast_arbitrary,
+        ast => {
+          let original_ast = clone(ast);
+          let new_ast = clone(ast);
+          try {
+            let expanded_ast = pyrite.expand([new_ast]);
+          } catch (e) {}
+          assert.deepStrictEqual(new_ast, original_ast);
+        }
+      )
+    );
+  });
+  */
 });

@@ -4,8 +4,10 @@ import pyrite from '../pyrite.js';
 import {
   ATOM_REGEX,
   atom_arbitrary,
-  non_numeral_atom_arbitrary
+  non_numeral_atom_arbitrary,
+  pyrite_ast_arbitrary
 } from './common.js';
+import clone from 'just-clone';
 
 describe('the type inferrer/type checker', () => {
   it('detects conflicting types', () => {
@@ -93,4 +95,22 @@ describe('the type inferrer/type checker', () => {
       type: null
     });
   });
+  /*
+  2022-12-26T18:27:18Z TODO: this crashes.
+  it('is pure', () => {
+    fc.assert(
+      fc.property(
+        pyrite_ast_arbitrary,
+        ast => {
+          let original_ast = clone(ast);
+          let new_ast = clone(ast);
+          try {
+            let expanded_ast = pyrite.infer(new_ast);
+          } catch (e) {}
+          assert.deepStrictEqual(new_ast, original_ast);
+        }
+      )
+    );
+  });
+  */
 });
