@@ -83,6 +83,13 @@ const single_item_map = (key, val) => {
 const merge_maps = (...maps) =>
   maps.reduce((lhs, rhs) => new Map([...lhs, ...rhs]), new Map());
 
+const zip = (...arrs) =>
+  arrs.length == 0 ?
+    [] :
+  
+  letin(Math.min(...arrs.map(arr => arr.length)), len =>
+    new Array(len).fill(0).map((_, i) => arrs.map(arr => arr[i])));
+
 export {
   raise,
   relocate,
@@ -99,5 +106,6 @@ export {
   range,
   chunk,
   single_item_map,
-  merge_maps
+  merge_maps,
+  zip
 };
