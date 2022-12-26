@@ -1,4 +1,8 @@
+// 2022-12-24T08:25:14.264Z TODO:
+// rerefactor!
+
 import { AST } from './pyrite-parser.js';
+import { evaluate } from './pyrite-exec.js';
 import {
   letin,
   tryfall,
@@ -11,6 +15,7 @@ import {
   merge_maps,
   raise
 } from './pyrite-common.js';
+import { dbg } from './pyrite-dbg.js';
 
 const parse_replacements = replacements => ([name, val]) =>
   name.kind != AST.ATOM ?
@@ -56,23 +61,27 @@ const expand_list_def = (ast, replacements, consts) =>
     )
   };
 
+const expand_list_lambda_1 = ast => (new_ast, arg) =>
+  ast_node(
+    AST.LIST,
+    [
+      ast_node(AST.ATOM, 'lambda', ast.has[0].i, ast.has[0].j),
+      ast_node(AST.LIST, [ arg ], ast.has[1].i, ast.has[1].j),
+      new_ast
+    ],
+    ast.i,
+    ast.j
+  );
+
 const expand_list_lambda = (ast, replacements, _consts) => (
   {
-    ...(
-      [...ast.has[1].has].reverse().reduce(
-        (new_ast, arg) => ast_node(
-          AST.LIST,
-          [
-            ast_node(AST.ATOM, 'lambda', ast.has[0].i, ast.has[0].j),
-            ast_node(AST.LIST, [ arg ], ast.has[1].i, ast.has[1].j),
-            new_ast
-          ],
-          ast.i,
-          ast.j
-        ),
+    ...
+      [...ast.has[1].has]
+      .reverse()
+      .reduce(
+        expand_list_lambda_1(ast),
         expand_expr(ast.has[2], replacements).ast
-      )
-    ),
+      ),
     type: ast.type
   }
 );
@@ -188,10 +197,50 @@ const is_special = (ast, replacements) =>
   expand_list_fns.has(ast.has[0].has) &&
   !replacements.has(ast.has[0].has);
 
+const is_nonnative_macro = (ast, replacements) =>
+  ast.kind == AST.LIST && // ()
+  ast.has.length >= 2 && // (... ...)
+  ast.has[0].kind == AST.LIST && // (() ...)
+  ast.has[0].has.length == 3 && // ((... ... ...) ...)
+  ast.has[0].has[0].kind == AST.ATOM && // ((ATOM ... ...) ...)
+  ast.has[0].has[0].has == 'macro' && // ((macro ... ...) ...)
+  !replacements.has('macro') &&
+  ast.has[0].has[1].kind == AST.LIST; // ((macro () ...) ...)
+
+const env = new Map();
+env.set('first', ast_node(
+  AST.RAW2,
+  list => list.has[0]
+));
+
+const quote = ast =>
+  ast_node(AST.QUOTED, ast);
+
+const expand_nonnative_macro = (ast, replacements, consts) => (
+  {
+    ast: evaluate(ast.has[0].has[2], merge_maps(
+      env,
+      single_item_map(
+        ast.has[0].has[1].has[0].has,
+        ast_node(AST.NULL, null)
+      ),
+      single_item_map(
+        ast.has[0].has[1].has[1].has,
+        ast_node(AST.QUOTED, ast_node(AST.LIST, ast.has.slice(1).map(quote)))
+      )
+    )),
+    consts
+  }
+);
+
 const expand_list = (ast, replacements) => (
   is_special(ast, replacements) ?
     expand_list_fns.get(ast.has[0].has) :
-    expand_list_other
+
+  is_nonnative_macro(ast, replacements) ?
+    expand_nonnative_macro :
+  
+  expand_list_other
 )(
   ast,
   replacements,

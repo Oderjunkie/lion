@@ -143,7 +143,7 @@ function infer(ast, name=null) {
         }
         return {
           kind: AST.ATOM,
-          has: splice2(branch.has, argnames),
+          has: splice2(branch.has),
           i: branch.i,
           j: branch.j,
           type: branch.type,
@@ -152,7 +152,7 @@ function infer(ast, name=null) {
       case AST.QUOTED: {
         return {
           kind: AST.QUOTED,
-          has: splice2(branch.has, argnames),
+          has: splice2(branch.has),
           i: branch.i,
           j: branch.j,
           type: branch.type,
@@ -170,7 +170,7 @@ function infer(ast, name=null) {
     && ast.has[0].has == 'lambda') {
       let argnames = ast.has[1].has.map(arg => arg.has);
       infer(ast.has[2]);
-      splice2(ast.has[2], argnames);
+      splice2(ast.has[2]);
       let argtypes = ast.has[1].has.map(arg => arg.type);
       let fn = ast.type;
       if (fn.kind == AST.NULL) {
@@ -203,7 +203,7 @@ function infer(ast, name=null) {
       Object.assign(fn.has[fn.has.length - 1], type);
       Object.assign(ast.has[2].type, type);
       infer(ast.has[2]);
-      splice2(ast.has[2], argnames);
+      splice2(ast.has[2]);
       Object.assign(ast.type, fn);
       return ast;
     }
