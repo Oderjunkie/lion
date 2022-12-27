@@ -2,13 +2,19 @@ import fc from 'fast-check';
 import { NUMBER_REGEX } from '../pyrite-common.js';
 import { AST } from '../pyrite-parser.js';
 
-const ATOM_REGEX = /[ \t\f\r\n()'":;]/g;
+const ATOM_REGEX = /[ \t\f\r\n()'":;.]/g;
 const atom_arbitrary = fc.string()
   .map(x => x.replaceAll(ATOM_REGEX, ''))
   .filter(x => x.length > 0 && x != 'def');
 const non_numeral_atom_arbitrary = fc.string()
   .map(x => x.replaceAll(ATOM_REGEX, ''))
   .filter(x => x.length > 0 && !NUMBER_REGEX.test(x));
+const non_string_arbitrary = fc.string()
+  .map(x => x.replaceAll('"', ''));
+const string_arbitrary = fc.string()
+  .map(str => str
+    .replaceAll(`\\`, `\\\\`)
+    .replaceAll(`"`, `\\"`));
 
 const depthIdentifier = fc.createDepthIdentifier();
 
@@ -107,5 +113,7 @@ export {
   NUMBER_REGEX,
   atom_arbitrary,
   non_numeral_atom_arbitrary,
+  non_string_arbitrary,
+  string_arbitrary,
   pyrite_ast_arbitrary
 };

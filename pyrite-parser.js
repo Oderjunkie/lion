@@ -66,6 +66,8 @@ function parse(tokens, code) {
       return parse_string();
     if (tokens[x].kind == LEX.QUOTE)
       return parse_quote();
+    if (tokens[x].kind == LEX.KEYWORD)
+      return null;
   }
   
   function parse_quote() {

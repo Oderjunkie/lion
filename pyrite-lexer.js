@@ -11,6 +11,7 @@ const LEX = {
   COLON: 3,
   ATOM: 4,
   STRING: 5,
+  KEYWORD: 6
 };
 
 /**
@@ -77,6 +78,27 @@ function lex(code) {
         }
         tokens.push({ kind: LEX.STRING, i, j });
         break;
+      case '.':
+        outer3: while (j < len) {
+          switch (code[j]) {
+            case '(':
+            case ')':
+            case ':':
+            case '\'':
+            case '"':
+            case ' ':
+            case '\t':
+            case '\f':
+            case '\r':
+            case '\n':
+            case '.':
+              break outer3;
+            default:
+              j++;
+          }
+        }
+        tokens.push({ kind: LEX.KEYWORD, i, j });
+        break;
       default:
         outer2: while (j < len) {
           switch (code[j]) {
@@ -90,6 +112,7 @@ function lex(code) {
             case '\f':
             case '\r':
             case '\n':
+            case '.':
               break outer2;
             default:
               j++;
