@@ -4,7 +4,8 @@ import pyrite from '../pyrite.js';
 import {
   ATOM_REGEX,
   atom_arbitrary,
-  non_numeral_atom_arbitrary
+  non_numeral_atom_arbitrary,
+  string_arbitrary
 } from './common.js';
 
 describe('the parser', () => {
@@ -18,6 +19,30 @@ describe('the parser', () => {
             has: atom,
             i: 0,
             j: atom.length,
+            type: {
+              kind: pyrite.AST.NULL,
+              has: null,
+              i: -1,
+              j: -1,
+              type: null
+            }
+          }
+        ]);
+      })
+    );
+  });
+  it('can parse keywords', () => {
+    fc.assert(
+      fc.property(atom_arbitrary, keyword => {
+        const code = `.${keyword}`;
+        const tokens = pyrite.lex(code);
+        const ast = pyrite.parse(tokens, code);
+        assert.deepStrictEqual(ast, [
+          {
+            kind: pyrite.AST.KEYWORD,
+            has: keyword,
+            i: 0,
+            j: keyword.length + 1,
             type: {
               kind: pyrite.AST.NULL,
               has: null,
@@ -74,13 +99,7 @@ describe('the parser', () => {
   });
   it(`can parse strings`, () => {
     fc.assert(
-      fc.property(
-        fc.string()
-          .map(str => str
-            .replaceAll(`\\`, `\\\\`)
-            .replaceAll(`"`, `\\"`)
-          ),
-        str => {
+      fc.property(string_arbitrary, str => {
           const code = `"${str}"`;
           const tokens = pyrite.lex(code);
           const ast = pyrite.parse(tokens, code);
@@ -184,6 +203,13 @@ describe('the parser', () => {
     });
     it(`can parse missing types correctly (colon)`, () => {
       const code = `(pyrite::)`;
+      assert.throws(
+        () => pyrite.parse(pyrite.lex(code), code),
+        SyntaxError
+      );
+    });
+    it(`can parse empty keywords correctly`, () => {
+      const code = `.`;
       assert.throws(
         () => pyrite.parse(pyrite.lex(code), code),
         SyntaxError

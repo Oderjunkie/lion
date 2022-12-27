@@ -20,8 +20,9 @@ const AST = {
   ATOM: 2,
   STRING: 3,
   NULL: 4,
-  RAW: 5, // evaluator hack!
-  RAW2: 6
+  KEYWORD: 5,
+  RAW: 6, // evaluator hack!
+  RAW2: 7
 };
 
 /**
@@ -67,7 +68,7 @@ function parse(tokens, code) {
     if (tokens[x].kind == LEX.QUOTE)
       return parse_quote();
     if (tokens[x].kind == LEX.KEYWORD)
-      return null;
+      return parse_keyword();
   }
   
   function parse_quote() {
@@ -158,6 +159,43 @@ function parse(tokens, code) {
       }
     };
   }
+  
+  function parse_keyword() {
+    if (x >= end)
+      throw new SyntaxError(
+        'i expected an keyword here, but i cant see any more code'
+      );
+    if (tokens[x].kind != LEX.KEYWORD)
+      throw new SyntaxError(
+        `i expected an keyword here, but i found \
+        \`${code.slice(tokens[x].i, tokens[x].j)}\` \
+        instead`
+      );
+    
+    const { i, j } = tokens[x];
+    if (i + 1 == j)
+      throw new SyntaxError(
+        'i expected a keyword here, but i only see a lone period'
+      )
+    
+    const has = code.slice(i + 1, j);
+    x++;
+    
+    return {
+      kind: AST.KEYWORD,
+      has,
+      i,
+      j,
+      type: {
+        kind: AST.NULL,
+        has: null,
+        i: -1,
+        j: -1,
+        type: null
+      }
+    };
+  }
+  
   function parse_string() {
     if (x >= end)
       throw new SyntaxError(
