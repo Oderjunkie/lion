@@ -11,7 +11,7 @@ import {
   NUMBER_REGEX,
   single_item_map,
   merge_maps,
-  log
+  log,
 } from './pyrite-common.js';
 
 /**
@@ -226,5 +226,5 @@ const evaluate = (expr, env) =>
 
 export {
   exec,
-  evaluate
+  evaluate,
 };

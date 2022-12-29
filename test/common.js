@@ -115,5 +115,5 @@ export {
   non_numeral_atom_arbitrary,
   non_string_arbitrary,
   string_arbitrary,
-  pyrite_ast_arbitrary
+  pyrite_ast_arbitrary,
 };

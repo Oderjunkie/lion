@@ -5,7 +5,7 @@ import {
   ATOM_REGEX,
   atom_arbitrary,
   non_numeral_atom_arbitrary,
-  pyrite_ast_arbitrary
+  pyrite_ast_arbitrary,
 } from './common.js';
 import clone from 'just-clone';
 

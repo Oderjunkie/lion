@@ -111,5 +111,5 @@ export {
   single_item_map,
   merge_maps,
   zip,
-  until_nonnull
+  until_nonnull,
 };

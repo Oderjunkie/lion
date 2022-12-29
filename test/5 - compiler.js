@@ -12,7 +12,7 @@ import pyrite from '../pyrite.js';
 import {
   ATOM_REGEX,
   atom_arbitrary,
-  non_numeral_atom_arbitrary
+  non_numeral_atom_arbitrary,
 } from './common.js';
 
 describe('the compiler', () => {

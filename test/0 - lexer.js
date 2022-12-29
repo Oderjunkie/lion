@@ -6,7 +6,7 @@ import {
   atom_arbitrary,
   non_numeral_atom_arbitrary,
   non_string_arbitrary,
-  string_arbitrary
+  string_arbitrary,
 } from './common.js';
 
 
