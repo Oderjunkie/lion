@@ -65,7 +65,7 @@ describe('lexer', () => {
       {
         i: 0,
         j: 1,
-        kind: pyrite.LEX.LPAREN
+        kind: pyrite.TOKEN.LPAREN
       }
     ]);
   });
@@ -74,7 +74,7 @@ describe('lexer', () => {
       {
         i: 0,
         j: 1,
-        kind: pyrite.LEX.RPAREN
+        kind: pyrite.TOKEN.RPAREN
       }
     ]);
   });
@@ -83,7 +83,7 @@ describe('lexer', () => {
       {
         i: 0,
         j: 1,
-        kind: pyrite.LEX.COLON
+        kind: pyrite.TOKEN.COLON
       }
     ]);
   });
@@ -92,7 +92,7 @@ describe('lexer', () => {
       {
         i: 0,
         j: 1,
-        kind: pyrite.LEX.QUOTE
+        kind: pyrite.TOKEN.QUOTE
       }
     ]);
   });
@@ -121,7 +121,7 @@ describe('lexer', () => {
           {
             i: 0,
             j: atom.length,
-            kind: pyrite.LEX.ATOM
+            kind: pyrite.TOKEN.ATOM
           }
         ]);
       })
@@ -132,7 +132,7 @@ describe('lexer', () => {
       fc.property(string_arbitrary, str => {
           assert.deepStrictEqual(pyrite.lex(`"${str}"`), [
             {
-              kind: pyrite.LEX.STRING,
+              kind: pyrite.TOKEN.STRING,
               i: 0,
               j: str.length + 2
             }
@@ -146,7 +146,7 @@ describe('lexer', () => {
       fc.property(atom_arbitrary, keyword => {
         assert.deepStrictEqual(pyrite.lex(`.${keyword}`), [
           {
-            kind: pyrite.LEX.KEYWORD,
+            kind: pyrite.TOKEN.KEYWORD,
             i: 0,
             j: keyword.length + 1
           }

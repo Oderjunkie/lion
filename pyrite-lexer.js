@@ -1,10 +1,12 @@
+import { letin, until_nonnull } from './pyrite-common.js';
+
 /**
  * pyrite tokens
  * @readonly
  * @enum {number}
- * @typedef {number} LEX
+ * @typedef {number} TOKEN
  */
-const LEX = {
+const TOKEN = {
   LPAREN: 0,
   RPAREN: 1,
   QUOTE: 2,
@@ -14,120 +16,93 @@ const LEX = {
   KEYWORD: 6
 };
 
+const REGEXES = {
+  LPAREN: /^\(/d,
+  RPAREN: /^\)/d,
+  QUOTE: /^\'/d,
+  COLON: /^\:/d,
+  ATOM: /^[^():'" \t\f\r\n.]+/d,
+  STRING: /^"([^"\\]|\\\\|\\")*"?/d,
+  KEYWORD: /^\.[^():'" \t\f\r\n.]*/d,
+  IGNORE: /^[ \t\f\r\n]+|^;.*/d,
+};
+
 /**
  * pyrite token
- * @typedef {{kind: LEX, i: number, j: number}} token
+ * @typedef {{kind: TOKEN, i: number, j: number}} token
  */
+
+const output_token = tokenkind => (start, end) =>
+  [{
+    kind: tokenkind,
+    i: start,
+    j: end
+  }];
+
+const skip_token = (start, end) =>
+  [];
+
+class LexerBuilder {
+  constructor(rules = []) {
+    this.rules = rules;
+    return this;
+  }
+  
+  add_rule(regex, handler) {
+    return new LexerBuilder([
+      ...this.rules,
+      [
+        regex,
+        typeof handler == 'number' ?
+          output_token(handler) :
+          handler
+      ]
+    ]);
+  }
+  
+  build() {
+    const rules = this.rules;
+
+    const iter = (code, i) =>
+      code.length == 0 ?
+        [] :
+      
+      until_nonnull(rules, ([regex, handler]) =>
+        !regex.test(code) ?
+          null :
+        
+        letin(
+          regex.exec(code).indices[0],
+          ([start, end]) =>
+            handler(i + start, i + end)
+              .concat(iter(code.slice(end), i + end))
+        )
+      ) ??
+      
+      raise(`"${code}" matches with nothing`);
+    
+    return code => iter(code, 0);
+  }
+}
 
 /**
  * pyrite lexer
  * @param {string} code
  * @returns {Array.<token>}
  */
-function lex(code) {
-  const len = code.length;
-  let i = 0;
-  let j = 1;
-  let tokens = [];
-  while (i < len) {
-    switch (code[i]) {
-      case '(':
-        tokens.push({ kind: LEX.LPAREN, i, j });
-        break;
-      case ')':
-        tokens.push({ kind: LEX.RPAREN, i, j });
-        break;
-      case ':':
-        tokens.push({ kind: LEX.COLON, i, j });
-        break;
-      case '\'':
-        tokens.push({ kind: LEX.QUOTE, i, j });
-        break;
-      case ' ':
-      case '\t':
-      case '\f':
-      case '\r':
-      case '\n':
-        break;
-      case ';':
-        outer1: while (j < len) {
-          switch (code[j]) {
-            case '\r':
-            case '\n':
-              break outer1;
-            default:
-              j++;
-          }
-        }
-        break;
-      case `"`:
-        outer: while (j < len) {
-          switch (code[j]) {
-            case `\\`:
-              j++;
-              if (j < len)
-                j++;
-              continue outer;
-            default:
-              j++;
-              continue outer;
-            case `"`:
-              j++;
-              break outer;
-          }
-        }
-        tokens.push({ kind: LEX.STRING, i, j });
-        break;
-      case '.':
-        outer3: while (j < len) {
-          switch (code[j]) {
-            case '(':
-            case ')':
-            case ':':
-            case '\'':
-            case '"':
-            case ' ':
-            case '\t':
-            case '\f':
-            case '\r':
-            case '\n':
-            case '.':
-              break outer3;
-            default:
-              j++;
-          }
-        }
-        tokens.push({ kind: LEX.KEYWORD, i, j });
-        break;
-      default:
-        outer2: while (j < len) {
-          switch (code[j]) {
-            case '(':
-            case ')':
-            case ':':
-            case '\'':
-            case '"':
-            case ' ':
-            case '\t':
-            case '\f':
-            case '\r':
-            case '\n':
-            case '.':
-              break outer2;
-            default:
-              j++;
-          }
-        }
-        tokens.push({ kind: LEX.ATOM, i, j });
-        break;
-    }
-    i = j;
-    j++;
-  }
-  return tokens;
-}
+
+const lex = new LexerBuilder()
+  .add_rule(REGEXES.IGNORE,  skip_token)
+  .add_rule(REGEXES.LPAREN,  TOKEN.LPAREN)
+  .add_rule(REGEXES.RPAREN,  TOKEN.RPAREN)
+  .add_rule(REGEXES.QUOTE,   TOKEN.QUOTE)
+  .add_rule(REGEXES.COLON,   TOKEN.COLON)
+  .add_rule(REGEXES.ATOM,    TOKEN.ATOM)
+  .add_rule(REGEXES.STRING,  TOKEN.STRING)
+  .add_rule(REGEXES.KEYWORD, TOKEN.KEYWORD)
+  .build();
 
 export {
-  LEX,
+  TOKEN,
   lex,
 };

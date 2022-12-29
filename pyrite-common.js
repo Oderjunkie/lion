@@ -90,6 +90,9 @@ const zip = (...arrs) =>
   letin(Math.min(...arrs.map(arr => arr.length)), len =>
     new Array(len).fill(0).map((_, i) => arrs.map(arr => arr[i])));
 
+const until_nonnull = (arr, fn) =>
+  arr.reduce((acc, el) => acc ?? fn(el), null);
+
 export {
   raise,
   relocate,
@@ -107,5 +110,6 @@ export {
   chunk,
   single_item_map,
   merge_maps,
-  zip
+  zip,
+  until_nonnull
 };

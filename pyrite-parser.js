@@ -1,7 +1,7 @@
-import { LEX } from './pyrite-lexer.js';
+import { TOKEN } from './pyrite-lexer.js';
 
 /**
- * @typedef {import('./pyrite-lexer.js').LEX} LEX
+ * @typedef {import('./pyrite-lexer.js').TOKEN} TOKEN
  */
 
 /**
@@ -50,24 +50,24 @@ function parse(tokens, code) {
       throw new SyntaxError(
         'i expected a value here, but i cant see any more code'
       );
-    if (tokens[x].kind == LEX.RPAREN)
+    if (tokens[x].kind == TOKEN.RPAREN)
       throw new SyntaxError(
         'i expected a value here, but i found a `)` instead'
       );
-    if (tokens[x].kind == LEX.COLON)
+    if (tokens[x].kind == TOKEN.COLON)
       throw new SyntaxError(
         'the code is certainly typed, but it lacks code in it'
       );
     
-    if (tokens[x].kind == LEX.LPAREN)
+    if (tokens[x].kind == TOKEN.LPAREN)
         return parse_list();
-    if (tokens[x].kind == LEX.ATOM)
+    if (tokens[x].kind == TOKEN.ATOM)
       return parse_atom();
-    if (tokens[x].kind == LEX.STRING)
+    if (tokens[x].kind == TOKEN.STRING)
       return parse_string();
-    if (tokens[x].kind == LEX.QUOTE)
+    if (tokens[x].kind == TOKEN.QUOTE)
       return parse_quote();
-    if (tokens[x].kind == LEX.KEYWORD)
+    if (tokens[x].kind == TOKEN.KEYWORD)
       return parse_keyword();
   }
   
@@ -95,7 +95,7 @@ function parse(tokens, code) {
       throw new SyntaxError(
         'i expected a list here, but i cant see any more code'
       );
-    if (tokens[x].kind != LEX.LPAREN)
+    if (tokens[x].kind != TOKEN.LPAREN)
       throw new SyntaxError(
         `i expected a list here, but i found \
         \`${code.slice(tokens[x].i, tokens[x].j)}\` \
@@ -105,7 +105,7 @@ function parse(tokens, code) {
     const i = tokens[x].i;
     x++;
     let has = [];
-    while (x < end && tokens[x].kind != LEX.RPAREN) {
+    while (x < end && tokens[x].kind != TOKEN.RPAREN) {
       let val = parse_typed_value();
       has.push(val);
     }
@@ -135,7 +135,7 @@ function parse(tokens, code) {
       throw new SyntaxError(
         'i expected an atom here, but i cant see any more code'
       );
-    if (tokens[x].kind != LEX.ATOM)
+    if (tokens[x].kind != TOKEN.ATOM)
       throw new SyntaxError(
         `i expected an atom here, but i found \
         \`${code.slice(tokens[x].i, tokens[x].j)}\` \
@@ -165,7 +165,7 @@ function parse(tokens, code) {
       throw new SyntaxError(
         'i expected an keyword here, but i cant see any more code'
       );
-    if (tokens[x].kind != LEX.KEYWORD)
+    if (tokens[x].kind != TOKEN.KEYWORD)
       throw new SyntaxError(
         `i expected an keyword here, but i found \
         \`${code.slice(tokens[x].i, tokens[x].j)}\` \
@@ -201,7 +201,7 @@ function parse(tokens, code) {
       throw new SyntaxError(
         'i expected a string here, but i cant see any more code'
       );
-    if (tokens[x].kind != LEX.STRING)
+    if (tokens[x].kind != TOKEN.STRING)
       throw new SyntaxError(
         `i expected a string here, but i found \
         \`${code.slice(tokens[x].i, tokens[x].j)}\` \
@@ -251,7 +251,7 @@ function parse(tokens, code) {
     }
     
     let value = parse_value();
-    if (x < end && tokens[x].kind == LEX.COLON) {
+    if (x < end && tokens[x].kind == TOKEN.COLON) {
       x++;
       value.type = parse_value();
       clear_types(value.type);

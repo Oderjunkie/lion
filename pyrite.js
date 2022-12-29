@@ -1,6 +1,6 @@
-import { LEX, lex } from './pyrite-lexer.js';
+import { TOKEN, lex } from './pyrite-lexer.js';
 /**
- * @typedef {import('./pyrite-lexer.js').LEX} LEX
+ * @typedef {import('./pyrite-lexer.js').TOKEN} TOKEN
  */
 
 /**
@@ -23,7 +23,7 @@ import { exec, evaluate } from './pyrite-exec.js';
 import { compile_file } from './pyrite-llvm.js';
 
 export default {
-  LEX,
+  TOKEN,
   AST,
   lex,
   parse,
