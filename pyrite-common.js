@@ -93,6 +93,8 @@ const zip = (...arrs) =>
 const until_nonnull = (arr, fn) =>
   arr.reduce((acc, el) => acc ?? fn(el), null);
 
+const fix = fn => fn((...a) => fix(fn)(...a));
+
 export {
   raise,
   relocate,
@@ -112,4 +114,5 @@ export {
   merge_maps,
   zip,
   until_nonnull,
+  fix
 };
