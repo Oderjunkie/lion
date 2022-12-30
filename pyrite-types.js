@@ -139,7 +139,7 @@ function infer(ast, name=null) {
               };
             }
           }
-          throw Error(`whoops. look like you found some ICE00.`);
+          throw Error('ICE00');
         }
         return {
           kind: AST.ATOM,
