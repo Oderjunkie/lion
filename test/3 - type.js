@@ -10,15 +10,6 @@ import {
 import clone from 'just-clone';
 
 describe('the type inferrer/type checker', () => {
-  it('detects conflicting types', () => {
-    const code = '(+: (-> i16 i16 i16) x: i16 y: i16): str';
-    const tokens = pyrite.lex(code);
-    const ast = pyrite.parse(tokens, code);
-    assert.throws(
-      () => pyrite.infer(ast[0]),
-      TypeError
-    );
-  });
   it('can apply functions', () => {
     const code = '(+: (-> i16 i16 i16) x y)';
     const tokens = pyrite.lex(code);
@@ -94,6 +85,15 @@ describe('the type inferrer/type checker', () => {
       j: 25,
       type: null
     });
+  });
+  it('detects conflicting types', () => {
+    const code = '(+: (-> i16 i16 i16) x: i16 y: i16): str';
+    const tokens = pyrite.lex(code);
+    const ast = pyrite.parse(tokens, code);
+    assert.throws(
+      () => pyrite.infer(ast[0]),
+      TypeError
+    );
   });
   /*
   2022-12-26T18:27:18Z TODO: this crashes.
