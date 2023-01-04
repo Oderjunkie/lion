@@ -164,7 +164,7 @@ describe('the macro expander', () => {
     const code = `
 ((macro (env args)
   '((first args) (first args)))
-  1)
+ 1)
 `;
     const tokens = pyrite.lex(code);
     const ast = pyrite.parse(tokens, code);
