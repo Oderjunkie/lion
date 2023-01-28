@@ -1,26 +1,26 @@
-import { TOKEN, lex } from './pyrite-lexer.js';
+import { TOKEN, lex } from './lion-lexer.js';
 /**
- * @typedef {import('./pyrite-lexer.js').TOKEN} TOKEN
+ * @typedef {import('./lion-lexer.js').TOKEN} TOKEN
  */
 
 /**
- * @typedef {import('./pyrite-lexer.js').token} token
+ * @typedef {import('./lion-lexer.js').token} token
  */
 
-import { AST, parse } from './pyrite-parser.js';
+import { AST, parse } from './lion-parser.js';
 /**
- * @typedef {import('./pyrite-parser.js').AST} AST
+ * @typedef {import('./lion-parser.js').AST} AST
  */
 
 /**
- * @typedef {import('./pyrite-parser.js').ast} ast
+ * @typedef {import('./lion-parser.js').ast} ast
  */
 
-import { expand } from './pyrite-macro.js';
-import { dbg, pdbg, llvm_to_js } from './pyrite-dbg.js';
-import { infer } from './pyrite-types.js';
-import { exec, evaluate } from './pyrite-exec.js';
-import { compile_file } from './pyrite-llvm.js';
+import { expand } from './lion-macro.js';
+import { dbg, pdbg, llvm_to_js } from './lion-dbg.js';
+import { infer } from './lion-types.js';
+import { exec, evaluate } from './lion-exec.js';
+import { compile_file } from './lion-llvm.js';
 
 export default {
   TOKEN,

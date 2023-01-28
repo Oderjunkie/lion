@@ -8,7 +8,7 @@
 import llvm from 'llvm-bindings';
 import assert from 'assert';
 import fc from 'fast-check';
-import pyrite from '../pyrite.js';
+import lion from '../lion.js';
 import {
   ATOM_REGEX,
   atom_arbitrary,
@@ -19,14 +19,14 @@ describe('the compiler', () => {
   it('compiles the (integer) identity function', async function() {
     this.timeout(10000);
     const code = '(def id (lambda (x: i16) x))';
-    const tokens = pyrite.lex(code);
-    const ast = pyrite.parse(tokens, code);
-    const expanded = pyrite.expand(ast);
+    const tokens = lion.lex(code);
+    const ast = lion.parse(tokens, code);
+    const expanded = lion.expand(ast);
     const defs = [...expanded.consts.entries()]
-      .map(([key, val]) => [key, pyrite.infer(val)])
+      .map(([key, val]) => [key, lion.infer(val)])
       .reduce((x, [key, val]) => x.set(key, val), new Map());
-    const llvm = pyrite.compile_file('id.pyr', defs);
-    const module = await pyrite.llvm_to_js(llvm, ['id']);
+    const llvm = lion.compile_file('id.pyr', defs);
+    const module = await lion.llvm_to_js(llvm, ['id']);
     let id = module.cwrap('id', 'number', ['number']);
   	fc.assert(
       fc.property(fc.integer({min: -32768, max: 32767}), num => {
@@ -38,14 +38,14 @@ describe('the compiler', () => {
     this.timeout(10000);
     const code = '(def id1 (lambda (x: i16) x)) \
                   (def id2 (lambda (x: i16) (id1 x): i16))';
-    const tokens = pyrite.lex(code);
-    const ast = pyrite.parse(tokens, code);
-    const expanded = pyrite.expand(ast);
+    const tokens = lion.lex(code);
+    const ast = lion.parse(tokens, code);
+    const expanded = lion.expand(ast);
     const defs = [...expanded.consts.entries()]
-      .map(([key, val]) => [key, pyrite.infer(val)])
+      .map(([key, val]) => [key, lion.infer(val)])
       .reduce((x, [key, val]) => x.set(key, val), new Map());
-    const llvm = pyrite.compile_file('fncall.pyr', defs);
-    const module = await pyrite.llvm_to_js(llvm, ['id1', 'id2']);
+    const llvm = lion.compile_file('fncall.pyr', defs);
+    const module = await lion.llvm_to_js(llvm, ['id1', 'id2']);
     let id2 = module.cwrap('id2', 'number', ['number']);
   	fc.assert(
       fc.property(fc.integer({min: -32768, max: 32767}), num => {
@@ -56,17 +56,17 @@ describe('the compiler', () => {
   it('can call foreign functions', async function() {
     this.timeout(10000);
     const code = '(def triple (lambda (x: i16) (+ (+ x x): i16 x): i16))';
-    const tokens = pyrite.lex(code);
-    const ast = pyrite.parse(tokens, code);
-    const expanded = pyrite.expand(ast);
+    const tokens = lion.lex(code);
+    const ast = lion.parse(tokens, code);
+    const expanded = lion.expand(ast);
     const defs = [...expanded.consts.entries()]
-      .map(([key, val]) => [key, pyrite.infer(val)])
+      .map(([key, val]) => [key, lion.infer(val)])
       .reduce((x, [key, val]) => x.set(key, val), new Map());
-    const llvm = pyrite.compile_file('fncall.pyr', defs);
-    const module = await pyrite.llvm_to_js(
+    const llvm = lion.compile_file('fncall.pyr', defs);
+    const module = await lion.llvm_to_js(
       llvm,
       ['triple'],
-      ['/home/runner/pyrite-js/pyrite-stdlib.c']
+      ['/home/runner/lion-js/lion-stdlib.c']
     );
     let triple = module.cwrap('triple', 'number', ['number']);
   	fc.assert(
@@ -85,17 +85,17 @@ describe('the compiler', () => {
     420
   ): i16
 ))`;
-    const tokens = pyrite.lex(code);
-    const ast = pyrite.parse(tokens, code);
-    const expanded = pyrite.expand(ast);
+    const tokens = lion.lex(code);
+    const ast = lion.parse(tokens, code);
+    const expanded = lion.expand(ast);
     const defs = [...expanded.consts.entries()]
-      .map(([key, val]) => [key, pyrite.infer(val)])
+      .map(([key, val]) => [key, lion.infer(val)])
       .reduce((x, [key, val]) => x.set(key, val), new Map());
-    const llvm = pyrite.compile_file('fncall.pyr', defs);
-    const module = await pyrite.llvm_to_js(
+    const llvm = lion.compile_file('fncall.pyr', defs);
+    const module = await lion.llvm_to_js(
       llvm,
       ['test'],
-      ['/home/runner/pyrite-js/pyrite-stdlib.c']
+      ['/home/runner/lion-js/lion-stdlib.c']
     );
     let test = module.cwrap('test', 'number', ['number']);
   	fc.assert(
@@ -124,17 +124,17 @@ describe('the compiler', () => {
         (-: (-> i16 i16 i16) ; minimum: (-> _ _ int)
         n
         2))))))`;
-    const tokens = pyrite.lex(code);
-    const ast = pyrite.parse(tokens, code);
-    const expanded = pyrite.expand(ast);
+    const tokens = lion.lex(code);
+    const ast = lion.parse(tokens, code);
+    const expanded = lion.expand(ast);
     const defs = [...expanded.consts.entries()]
-      .map(([key, val]) => [key, pyrite.infer(val)])
+      .map(([key, val]) => [key, lion.infer(val)])
       .reduce((x, [key, val]) => x.set(key, val), new Map());
-    const llvm = pyrite.compile_file('fncall.pyr', defs);
-    const module = await pyrite.llvm_to_js(
+    const llvm = lion.compile_file('fncall.pyr', defs);
+    const module = await lion.llvm_to_js(
       llvm,
       ['fib'],
-      ['/home/runner/pyrite-js/pyrite-stdlib.c']
+      ['/home/runner/lion-js/lion-stdlib.c']
     );
     let fib_pyr = module.cwrap('fib', 'number', ['number']);
     function fib_js(n) {

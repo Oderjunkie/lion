@@ -1,7 +1,7 @@
 import llvm from 'llvm-bindings';
-import { AST } from './pyrite-parser.js';
-import { evaluate } from './pyrite-exec.js';
-import { NUMBER_REGEX } from './pyrite-common.js';
+import { AST } from './lion-parser.js';
+import { evaluate } from './lion-exec.js';
+import { NUMBER_REGEX } from './lion-common.js';
 
 let count = 0;
 

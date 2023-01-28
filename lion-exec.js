@@ -1,6 +1,6 @@
-import { AST } from './pyrite-parser.js';
-import { expand } from './pyrite-macro.js';
-import { dbg } from './pyrite-dbg.js';
+import { AST } from './lion-parser.js';
+import { expand } from './lion-macro.js';
+import { dbg } from './lion-dbg.js';
 import {
   raise,
   relocate,
@@ -12,14 +12,14 @@ import {
   single_item_map,
   merge_maps,
   log,
-} from './pyrite-common.js';
+} from './lion-common.js';
 
 /**
- * @typedef {import('./pyrite-parser.js').AST} AST
+ * @typedef {import('./lion-parser.js').AST} AST
  */
 
 /**
- * @typedef {import('./pyrite-parser.js').ast} ast
+ * @typedef {import('./lion-parser.js').ast} ast
  */
 
 const exec = () => {};

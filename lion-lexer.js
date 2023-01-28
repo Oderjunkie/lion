@@ -1,7 +1,7 @@
-import { letin, until_nonnull } from './pyrite-common.js';
+import { letin, until_nonnull } from './lion-common.js';
 
 /**
- * pyrite tokens
+ * lion tokens
  * @readonly
  * @enum {number}
  * @typedef {number} TOKEN
@@ -28,7 +28,7 @@ const REGEXES = {
 };
 
 /**
- * pyrite token
+ * lion token
  * @typedef {{kind: TOKEN, i: number, j: number}} token
  */
 
@@ -86,7 +86,7 @@ class LexerBuilder {
 }
 
 /**
- * pyrite lexer
+ * lion lexer
  * @param {string} code
  * @returns {Array.<token>}
  */
