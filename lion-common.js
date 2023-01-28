@@ -1,4 +1,4 @@
-import { AST } from './pyrite-parser.js';
+import { AST } from './lion-parser.js';
 
 //===[ general FP shit ]===//
 const raise = err => { throw err; };

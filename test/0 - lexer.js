@@ -1,6 +1,6 @@
 import assert from 'assert';
 import fc from 'fast-check';
-import pyrite from '../pyrite.js';
+import lion from '../lion.js';
 import {
   ATOM_REGEX,
   atom_arbitrary,
@@ -12,11 +12,11 @@ import {
 
 describe('lexer', () => {
   it('parses empty strings', () => {
-    assert.deepStrictEqual(pyrite.lex(''), []);
+    assert.deepStrictEqual(lion.lex(''), []);
   });
   it('never gives invalid indicies', () => {
     function test(str) {
-      const tokens = pyrite.lex(str);
+      const tokens = lion.lex(str);
       const tokens_len = tokens.length;
       const len = str.length;
       for (let i = 0; i < tokens_len; i++) {
@@ -31,9 +31,9 @@ describe('lexer', () => {
   });
   it('is concatenative', () => {
     function test(a, b) {
-      const tokens_a = pyrite.lex(a);
-      const tokens_b = pyrite.lex(b);
-      const tokens_c = pyrite.lex(`${a}\n${b}`);
+      const tokens_a = lion.lex(a);
+      const tokens_b = lion.lex(b);
+      const tokens_c = lion.lex(`${a}\n${b}`);
       const a_len = a.length + 1;
       const tokens_b_len = tokens_b.length;
       let tokens_b_altered = [];
@@ -61,38 +61,38 @@ describe('lexer', () => {
     );
   });
   it('recognizes opening parenthesis', () => {
-    assert.deepStrictEqual(pyrite.lex('('), [
+    assert.deepStrictEqual(lion.lex('('), [
       {
         i: 0,
         j: 1,
-        kind: pyrite.TOKEN.LPAREN
+        kind: lion.TOKEN.LPAREN
       }
     ]);
   });
   it('recognizes closing parenthesis', () => {
-    assert.deepStrictEqual(pyrite.lex(')'), [
+    assert.deepStrictEqual(lion.lex(')'), [
       {
         i: 0,
         j: 1,
-        kind: pyrite.TOKEN.RPAREN
+        kind: lion.TOKEN.RPAREN
       }
     ]);
   });
   it('recognizes colons', () => {
-    assert.deepStrictEqual(pyrite.lex(':'), [
+    assert.deepStrictEqual(lion.lex(':'), [
       {
         i: 0,
         j: 1,
-        kind: pyrite.TOKEN.COLON
+        kind: lion.TOKEN.COLON
       }
     ]);
   });
   it('recognizes quotation marks', () => {
-    assert.deepStrictEqual(pyrite.lex('\''), [
+    assert.deepStrictEqual(lion.lex('\''), [
       {
         i: 0,
         j: 1,
-        kind: pyrite.TOKEN.QUOTE
+        kind: lion.TOKEN.QUOTE
       }
     ]);
   });
@@ -102,7 +102,7 @@ describe('lexer', () => {
         fc.stringOf(
           fc.constantFrom(' ', '\t', '\f', '\r', '\n')
         ), str => {
-          assert.deepStrictEqual(pyrite.lex(str), []);
+          assert.deepStrictEqual(lion.lex(str), []);
         }
       )
     );
@@ -110,18 +110,18 @@ describe('lexer', () => {
   it('ignores comments', () => {
     fc.assert(
       fc.property(atom_arbitrary, str => {
-        assert.deepStrictEqual(pyrite.lex(`;${str}`), []);
+        assert.deepStrictEqual(lion.lex(`;${str}`), []);
       })
     );
   });
   it('parses atoms', () => {
     fc.assert(
       fc.property(atom_arbitrary, atom => {
-        assert.deepStrictEqual(pyrite.lex(atom), [
+        assert.deepStrictEqual(lion.lex(atom), [
           {
             i: 0,
             j: atom.length,
-            kind: pyrite.TOKEN.ATOM
+            kind: lion.TOKEN.ATOM
           }
         ]);
       })
@@ -130,9 +130,9 @@ describe('lexer', () => {
   it(`parses strings`, () => {
     fc.assert(
       fc.property(string_arbitrary, str => {
-          assert.deepStrictEqual(pyrite.lex(`"${str}"`), [
+          assert.deepStrictEqual(lion.lex(`"${str}"`), [
             {
-              kind: pyrite.TOKEN.STRING,
+              kind: lion.TOKEN.STRING,
               i: 0,
               j: str.length + 2
             }
@@ -144,9 +144,9 @@ describe('lexer', () => {
   it(`parses keywords`, () => {
     fc.assert(
       fc.property(atom_arbitrary, keyword => {
-        assert.deepStrictEqual(pyrite.lex(`.${keyword}`), [
+        assert.deepStrictEqual(lion.lex(`.${keyword}`), [
           {
-            kind: pyrite.TOKEN.KEYWORD,
+            kind: lion.TOKEN.KEYWORD,
             i: 0,
             j: keyword.length + 1
           }

@@ -1,9 +1,9 @@
 import llvm from 'llvm-bindings';
 import { execFile } from 'child_process';
-import { AST } from './pyrite-parser.js';
+import { AST } from './lion-parser.js';
 
 /**
- * @typedef {import('./pyrite-parser.js').ast} ast
+ * @typedef {import('./lion-parser.js').ast} ast
  */
 
 function makeid(length) {
@@ -49,7 +49,7 @@ function llvm_to_js(bitcode, exported_functions, linked_files=[]) {
 }
 
 /**
- * pyrite debug printer
+ * lion debug printer
  * @param {ast} ast
  * @param {boolean} [show_types=false]
  * @param {boolean} [show_nulls=false]
@@ -84,7 +84,7 @@ ${ast.has.map(el => dbg(el, show_types, show_nulls)).join(' ')}\
 }
 
 /**
- * pyrite printer of moderate beauty
+ * lion printer of moderate beauty
  * @param {ast} ast
  * @param {number} nesting
  * @returns {string}

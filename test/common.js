@@ -1,6 +1,6 @@
 import fc from 'fast-check';
-import { NUMBER_REGEX } from '../pyrite-common.js';
-import { AST } from '../pyrite-parser.js';
+import { NUMBER_REGEX } from '../lion-common.js';
+import { AST } from '../lion-parser.js';
 
 const ATOM_REGEX = /[ \t\f\r\n()'":;.]/g;
 const atom_arbitrary = fc.string()
@@ -18,7 +18,7 @@ const string_arbitrary = fc.string()
 
 const depthIdentifier = fc.createDepthIdentifier();
 
-const { node: pyrite_ast_arbitrary } = fc.letrec(tie => ({
+const { node: lion_ast_arbitrary } = fc.letrec(tie => ({
   'node': fc.oneof(
     tie('quoted_node'),
     tie('list_node'),
@@ -115,5 +115,5 @@ export {
   non_numeral_atom_arbitrary,
   non_string_arbitrary,
   string_arbitrary,
-  pyrite_ast_arbitrary,
+  lion_ast_arbitrary,
 };

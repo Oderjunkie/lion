@@ -1,16 +1,16 @@
-import { TOKEN } from './pyrite-lexer.js';
-import { ast_node, raise, letin, fix } from './pyrite-common.js';
+import { TOKEN } from './lion-lexer.js';
+import { ast_node, raise, letin, fix } from './lion-common.js';
 
 /**
- * @typedef {import('./pyrite-lexer.js').TOKEN} TOKEN
+ * @typedef {import('./lion-lexer.js').TOKEN} TOKEN
  */
 
 /**
- * @typedef {import('./pyrite-lexer.js').token} token
+ * @typedef {import('./lion-lexer.js').token} token
  */
 
 /**
- * pyrite ast node types
+ * lion ast node types
  * @readonly
  * @enum {number}
  * @typedef {number} AST
@@ -27,7 +27,7 @@ const AST = {
 };
 
 /**
- * pyrite ast
+ * lion ast
  * @typedef {{
  *   kind: AST,
  *   has: string|ast|Array.<ast>,
@@ -38,7 +38,7 @@ const AST = {
  */
 
 /**
- * pyrite parser
+ * lion parser
  * @param {Array.<token>} tokens
  * @param {string} code
  * @returns {Array.<ast>}
@@ -240,7 +240,7 @@ function parse(tokens, code) {
     
     const { ilines, jlines, split_code, i } = process_sharp_decrease_in_indentation(val);
 
-    console.error(`missing \`)\` detected, possible fix:`);
+    console.error(`you seem to have forgotten a \`)\`, maybe it's here?`);
     const error_line = jlines[i];
     let cloned_split_code;
     
@@ -257,20 +257,20 @@ function parse(tokens, code) {
     
     diff(split_code, cloned_split_code);
     
-    process.exit();
+    
+    raise(new SyntaxError('...'));
   }
   
   const error_missing_rparen = val => {
-    /*raise(new SyntaxError(
-      'you seem to have forgotten a `)` somewhere, good luck finding it!'
-    ));*/
 
     if (detect_sharp_decrease_in_indentation(val))
       return handle_sharp_decrease_in_indentation(val);
     
     // console.log(val.has, indentation);
     
-    throw new Error();
+    raise(new SyntaxError(
+      'you seem to have forgotten a `)` somewhere, good luck finding it!'
+    ));
   }
   
   const parse_list = x =>

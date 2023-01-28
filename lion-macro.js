@@ -1,5 +1,5 @@
-import { AST } from './pyrite-parser.js';
-import { evaluate } from './pyrite-exec.js';
+import { AST } from './lion-parser.js';
+import { evaluate } from './lion-exec.js';
 import {
   letin,
   tryfall,
@@ -12,8 +12,8 @@ import {
   merge_maps,
   raise,
   log
-} from './pyrite-common.js';
-import { dbg } from './pyrite-dbg.js';
+} from './lion-common.js';
+import { dbg } from './lion-dbg.js';
 
 const parse_replacements = replacements => ([name, val]) =>
   name.kind != AST.ATOM ?
@@ -25,7 +25,7 @@ const parse_replacements = replacements => ([name, val]) =>
   )
 
 /**
- * @typedef {import('./pyrite-parser.js').ast} ast
+ * @typedef {import('./lion-parser.js').ast} ast
  */
 
 const expand_list_let = (ast, replacements, _consts) =>
@@ -294,7 +294,7 @@ const merge_expanded = (from, to) => (
 );
 
 /**
- * pyrite macro expander
+ * lion macro expander
  * @param {Array.<ast>} asts
  * @param {Map<string, ast>} [replacements=new Map()]
  * @returns {{ast: ast?, consts: Map<string, ast>}
