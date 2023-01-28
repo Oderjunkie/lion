@@ -1,0 +1,7 @@
+(def fib (lambda (n)
+  (? (<= n 0)
+     1
+     (+ (fib (- n 1)
+        (fib (- n 2))))))
+
+(fib 5)

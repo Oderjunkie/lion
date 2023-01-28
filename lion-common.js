@@ -83,6 +83,11 @@ const single_item_map = (key, val) => {
 const merge_maps = (...maps) =>
   maps.reduce((lhs, rhs) => new Map([...lhs, ...rhs]), new Map());
 
+const merge_iterators = function* (...iters) {
+  for (const iter of iters)
+    yield* iter;
+};
+
 const zip = (...arrs) =>
   arrs.length == 0 ?
     [] :
@@ -94,6 +99,55 @@ const until_nonnull = (arr, fn) =>
   arr.reduce((acc, el) => acc ?? fn(el), null);
 
 const fix = fn => fn((...a) => fix(fn)(...a));
+
+const break_up = fn => args => fn(...args);
+
+const walk = function* (ast) {
+  yield ast;
+  if (ast.kind == AST.LIST)
+    yield* merge_iterators(...ast.has.map(branch => walk(branch)));
+  if (ast.kind == AST.QUOTE)
+    yield* walk(ast.has);
+};
+
+const reusable_iterator = iterable => {
+  let cache = [];
+  let is_done = false;
+  const iterator = iterable[Symbol.iterator]();
+  
+  return function* () {
+    let i = 0;
+    for (;;) {
+      if (i < cache.length)
+        yield cache[i];
+      else if (is_done)
+        break;
+      else {
+        const obj = iterator.next();
+        is_done = obj.done;
+        if (!is_done) {
+          yield obj.value;
+          cache.push(obj.value);
+        }
+      }
+        
+      i++;
+    }
+  };
+};
+
+const combine_permutations = function* (lhs, rhs) {
+  const reusable_rhs = reusable_iterator(rhs);
+  
+  for (const lhs_el of lhs) {
+    for (const rhs_el of reusable_rhs()) {
+      yield [lhs_el, rhs_el];
+    }
+  }
+  
+  lhs.return?.();
+  rhs.return?.();
+};
 
 export {
   raise,
@@ -114,5 +168,10 @@ export {
   merge_maps,
   zip,
   until_nonnull,
-  fix
+  fix,
+  break_up,
+  walk,
+  merge_iterators,
+  reusable_iterator,
+  combine_permutations
 };

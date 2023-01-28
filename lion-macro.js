@@ -1,6 +1,3 @@
-// 2022-12-24T08:25:14.264Z TODO:
-// rerefactor!
-
 import { AST } from './pyrite-parser.js';
 import { evaluate } from './pyrite-exec.js';
 import {
@@ -13,7 +10,8 @@ import {
   chunk,
   single_item_map,
   merge_maps,
-  raise
+  raise,
+  log
 } from './pyrite-common.js';
 import { dbg } from './pyrite-dbg.js';
 
@@ -159,12 +157,21 @@ const expand_list_other = (ast, replacements, consts) =>
     branch => expand_expr(branch, replacements)
   ), evaluated =>
     letin(
-      evaluated.flatMap(
-        pipe(
-          get_prop('ast'),
-          maybe_to_list
-        )
-      ),
+      (()=>{
+        return evaluated.flatMap(
+          pipe(
+            get_prop('ast'),
+            maybe_to_list
+          )
+        )/*.reduceRight(
+          (rhs, lhs) => ast_node(
+            AST.LIST,
+            [lhs, rhs],
+            -1,
+            -1
+          )
+        )*/;
+      })(),
       evaluated.map(
         get_prop('consts')
       ).reduce(
