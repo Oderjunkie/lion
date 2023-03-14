@@ -160,6 +160,33 @@ describe('the macro expander', () => {
       )
     );
   });
+  it('expands multiargument calls', () => {
+    fc.assert(
+      fc.property(
+        atom_arbitrary,
+        fc.array(atom_arbitrary, { minLength: 1 }),
+        (fn, args) => {
+          const arg = Math.floor(Math.random(args));
+          const code = `(${fn} ${args.join(' ')})`;
+          const tokens = lion.lex(code);
+          const ast = lion.parse(tokens, code);
+          const expanded = lion.expand(ast);
+          let i = args.length - 1;
+          for (let ast = expanded.ast[0];
+              ast.kind == lion.AST.LIST;
+              ast = ast.has[0]) {
+            assert.strictEqual(ast.has.length, 2);
+            assert.strictEqual(ast.has[1].kind, lion.AST.ATOM);
+            assert.strictEqual(ast.has[1].has, args[i]);
+            i--;
+            if (ast.has[0].kind == lion.AST.ATOM)
+              assert.strictEqual(ast.has[0].has, fn);
+          }
+          
+        }
+      )
+    );
+  });
   it('supports user-defined macros', () => {
     const code = `
 ((macro (env args)

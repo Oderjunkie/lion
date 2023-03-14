@@ -71,16 +71,19 @@ const expand_list_lambda_1 = ast => (new_ast, arg) =>
     ast.j
   );
 
-const expand_list_lambda = (ast, replacements, _consts) => (
+const expand_list_lambda = (ast, replacements, consts) => (
   {
-    ...
-      [...ast.has[1].has]
-      .reverse()
-      .reduce(
-        expand_list_lambda_1(ast),
-        expand_expr(ast.has[2], replacements).ast
-      ),
-    type: ast.type
+    ast: {
+        ...
+          [...ast.has[1].has]
+          .reverse()
+          .reduce(
+            expand_list_lambda_1(ast),
+            expand_expr(ast.has[2], replacements).ast
+          ),
+      type: ast.type
+    },
+    consts
   }
 );
 
@@ -139,46 +142,35 @@ const expand_atom = (ast, replacements) =>
   
   { ast, consts: new Map() };
 
-const wrap_list = ast => (has, consts) => (
-  {
-    ast: {
-      kind: AST.LIST,
-      has,
-      i: ast.i,
-      j: ast.j,
-      type: ast.type,
-    },
-    consts
-  }
-);
-
 const expand_list_other = (ast, replacements, consts) =>
   letin(ast.has.map(
     branch => expand_expr(branch, replacements)
   ), evaluated =>
     letin(
-      (()=>{
-        return evaluated.flatMap(
-          pipe(
-            get_prop('ast'),
-            maybe_to_list
-          )
-        )/*.reduceRight(
-          (rhs, lhs) => ast_node(
-            AST.LIST,
-            [lhs, rhs],
-            -1,
-            -1
-          )
-        )*/;
-      })(),
+      evaluated.flatMap(
+        pipe(
+          get_prop('ast'),
+          maybe_to_list
+        )
+      ),
       evaluated.map(
         get_prop('consts')
       ).reduce(
         (lhs, rhs) => merge_maps(lhs, rhs),
         consts
       ),
-      wrap_list(ast)
+      (has, consts) => (
+        {
+          ast: { ...has.reduce((lhs, rhs) => ({
+            kind: AST.LIST,
+            has: [lhs, rhs],
+            i: ast.i,
+            j: ast.j,
+            type: { kind: AST.NULL, has: null, i: -1, j: -1, type: null},
+          })), type: ast.type },
+          consts
+        }
+      )
     )
   );
 
@@ -193,10 +185,7 @@ expand_list_fns.set(
 );
 expand_list_fns.set(
   'lambda',
-  (ast, replacements, consts) => pipe(
-      ast => expand_list_lambda(ast, replacements, consts),
-      ast => expand_list_other(ast, replacements, consts)
-  )(ast)
+  tryfall(expand_list_lambda, expand_list_other)
 );
 
 const is_special = (ast, replacements) =>
@@ -212,7 +201,7 @@ const is_nonnative_macro = (ast, replacements) =>
   ast.has[0].has[0].kind == AST.ATOM && // ((ATOM ... ...) ...)
   ast.has[0].has[0].has == 'macro' && // ((macro ... ...) ...)
   !replacements.has('macro') &&
-  ast.has[0].has[1].kind == AST.LIST; // ((macro () ...) ...)
+  ast.has[0].has[1].kind == AST.LIST; // ((macro (...) ...) ...)
 
 const env = new Map();
 env.set('first', ast_node(

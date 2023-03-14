@@ -14,7 +14,8 @@ describe('the type inferrer/type checker', () => {
     const code = '(+: (-> i16 i16 i16) x y)';
     const tokens = lion.lex(code);
     const ast = lion.parse(tokens, code);
-    const type_inferred = lion.infer(ast[0]);
+    const expanded = lion.expand(ast);
+    const type_inferred = lion.infer(expanded.ast[0]);
     assert.deepStrictEqual(type_inferred.type, {
       kind: lion.AST.ATOM,
       has: 'i16',
@@ -27,43 +28,64 @@ describe('the type inferrer/type checker', () => {
     const code = '(+ x: i16 y: i16): i16';
     const tokens = lion.lex(code);
     const ast = lion.parse(tokens, code);
-    const type_inferred = lion.infer(ast[0]);
-    assert.deepStrictEqual(type_inferred.has[0].type, {
+    const expanded = lion.expand(ast);
+    const type_inferred = lion.infer(expanded.ast[0]);
+    assert.deepStrictEqual(type_inferred.has[0].has[0].type, {
       kind: lion.AST.LIST,
       has: [
         { kind: lion.AST.ATOM, has: '->', i: -1, j: -1, type: null },
         { kind: lion.AST.ATOM, has: 'i16', i: 6, j: 9, type: null },
-        { kind: lion.AST.ATOM, has: 'i16', i: 13, j: 16, type: null },
-        { kind: lion.AST.ATOM, has: 'i16', i: 19, j: 22, type: null },
+        {
+          kind: lion.AST.LIST,
+          has: [
+            { kind: lion.AST.ATOM, has: '->', i: -1, j: -1, type: null },
+            { kind: lion.AST.ATOM, has: 'i16', i: 13, j: 16, type: null },
+            { kind: lion.AST.ATOM, has: 'i16', i: 19, j: 22, type: null },
+          ],
+          i: -1,
+          j: -1,
+          type: null
+        }
       ],
       i: -1,
       j: -1,
-      type: null,
+      type: null
     });
   });
   it('can construct functions', () => {
     const code = '(lambda (x: i16 y: str) x: i16)';
     const tokens = lion.lex(code);
     const ast = lion.parse(tokens, code);
-    const type_inferred = lion.infer(ast[0]);
+    const expanded = lion.expand(ast);
+    const type_inferred = lion.infer(expanded.ast[0]);
     assert.deepStrictEqual(type_inferred.type, {
       kind: lion.AST.LIST,
       has: [
         { kind: lion.AST.ATOM, has: '->', i: -1, j: -1, type: null },
         { kind: lion.AST.ATOM, has: 'i16', i: 12, j: 15, type: null },
-        { kind: lion.AST.ATOM, has: 'str', i: 19, j: 22, type: null },
-        { kind: lion.AST.ATOM, has: 'i16', i: 12, j: 15, type: null },
+        {
+          kind: lion.AST.LIST,
+          has: [
+            { kind: lion.AST.ATOM, has: '->', i: -1, j: -1, type: null },
+            { kind: lion.AST.ATOM, has: 'str', i: 19, j: 22, type: null },
+            { kind: lion.AST.ATOM, has: 'i16', i: 27, j: 30, type: null },
+          ],
+          i: -1,
+          j: -1,
+          type: null
+        }
       ],
       i: -1,
       j: -1,
-      type: null,
+      type: null
     });
   });
   it('can deconstruct functions', () => {
     const code = '(lambda (x y) x): (-> i16 str i16)';
     const tokens = lion.lex(code);
     const ast = lion.parse(tokens, code);
-    const type_inferred = lion.infer(ast[0]);
+    const expanded = lion.expand(ast);
+    const type_inferred = lion.infer(expanded.ast[0]);
     assert.deepStrictEqual(type_inferred.has[1].has[0].type, {
       kind: lion.AST.ATOM,
       has: 'i16',
@@ -71,18 +93,18 @@ describe('the type inferrer/type checker', () => {
       j: 25,
       type: null
     });
-    assert.deepStrictEqual(type_inferred.has[1].has[1].type, {
+    assert.deepStrictEqual(type_inferred.has[2].has[1].has[0].type, {
       kind: lion.AST.ATOM,
       has: 'str',
       i: 26,
       j: 29,
       type: null
     });
-    assert.deepStrictEqual(type_inferred.has[2].type, {
+    assert.deepStrictEqual(type_inferred.has[2].has[2].type, {
       kind: lion.AST.ATOM,
       has: 'i16',
-      i: 22,
-      j: 25,
+      i: 30,
+      j: 33,
       type: null
     });
   });
@@ -90,8 +112,9 @@ describe('the type inferrer/type checker', () => {
     const code = '(+: (-> i16 i16 i16) x: i16 y: i16): str';
     const tokens = lion.lex(code);
     const ast = lion.parse(tokens, code);
+    const expanded = lion.expand(ast);
     assert.throws(
-      () => lion.infer(ast[0]),
+      () => lion.infer(expanded.ast[0]),
       TypeError
     );
   });
@@ -102,7 +125,8 @@ describe('the type inferrer/type checker', () => {
       fc.property(
         lion_ast_arbitrary,
         ast => {
-          let original_ast = clone(ast);
+          const expanded = lion.expand(ast);
+          let original_ast = clone(expanded.ast[0]);
           let new_ast = clone(ast);
           try {
             let expanded_ast = lion.infer(new_ast);
