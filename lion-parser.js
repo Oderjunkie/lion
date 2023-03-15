@@ -60,6 +60,8 @@ function parse(tokens, code) {
     false;
   
   const parse_value = x => {
+    // console.log(code.slice(tokens[x].i));
+    
     return x >= tokens.length ?
       raise(new SyntaxError(
         `[${tokens[tokens.length].j} --> ...] i expected a value here, but i cant see any more code`
@@ -98,12 +100,13 @@ function parse(tokens, code) {
       )
     }));
 
-  const read_until_rparen_or_eof = fix(read_until_rparen_or_eof => x =>
-    x >= tokens.length ?
+  const read_until_rparen_or_eof = fix(read_until_rparen_or_eof => x => {
+    // console.log('!', code.slice(tokens[x]?.i ?? code.length));
+    return x >= tokens.length ?
       {new_x: x, has: []} :
     
     tokens[x].kind == TOKEN.RPAREN ?
-      {new_x: x, has: []} :
+      {new_x: x - 1, has: []} :
 
     letin(parse_typed_value(x), val =>
       letin(read_until_rparen_or_eof(val.new_x), res => ({
@@ -111,7 +114,7 @@ function parse(tokens, code) {
         has: [val.node, ...res.has]
       }))
     )
-  );
+  });
 
   const process_sharp_decrease_in_indentation = val => {
     const is = val.has.map(element => element.i);
@@ -273,22 +276,24 @@ function parse(tokens, code) {
     ));
   }
   
-  const parse_list = x =>
+  const parse_list = x => 
     parsing_errors(x, 'list', TOKEN.LPAREN) ?
       raise(new Error('ICE05')) :
     
-    letin(read_until_rparen_or_eof(x + 1), val =>
-      val.new_x >= tokens.length ?
+    letin(read_until_rparen_or_eof(x + 1), val => {
+      // console.log('?', code.slice(tokens[x + 1].i, tokens[val.new_x]?.j ?? code.length));
+      return val.new_x >= tokens.length ?
         error_missing_rparen(val) :
       
       {
-      new_x: val.new_x + 1,
-      node: ast_node(
-        AST.LIST,
-        val.has,
-        tokens[x].i,
-        tokens[val.new_x].j
-      )
+        new_x: val.new_x + 2,
+        node: ast_node(
+          AST.LIST,
+          val.has,
+          tokens[x].i,
+          tokens[val.new_x + 1].j
+        )
+      }
     });
   
   const parse_atom = x =>
